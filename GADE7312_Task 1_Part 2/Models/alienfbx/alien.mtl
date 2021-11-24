@@ -1,0 +1,38 @@
+# Blender MTL File: 'None'
+# Material Count: 3
+
+newmtl Material_53
+Ns 35.166674
+Ka 1.000000 1.000000 1.000000
+Kd 0.498039 0.498039 0.498039
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump Alien_u0_v0_NM.png
+map_Kd alien_AM_u0v0.png
+
+newmtl Material_54
+Ns 35.166674
+Ka 1.000000 1.000000 1.000000
+Kd 0.498039 0.498039 0.498039
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump Alien_u0_v1_NM.png
+map_Kd alien_AM_u0v1.png
+
+newmtl Material_55
+Ns 35.166674
+Ka 1.000000 1.000000 1.000000
+Kd 0.498039 0.498039 0.498039
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump Alien_u0_v2_NM.png
+map_Kd alien_AM_u0v2.png
