@@ -10,7 +10,7 @@ Render::Render() {
 
 // Global initialisers
 //GLFWwindow* Render::window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Engine Test", NULL, NULL);
-Camera Render::camera(glm::vec3(0.0f, 0.0f, 0.0f));
+Camera Render::camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float Render::lastX = SCR_WIDTH / 2.0f;
 float Render::lastY = SCR_HEIGHT / 2.0f;
 bool Render::firstMouse = true;
@@ -244,6 +244,7 @@ void Render::InitRenderer() {
 
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
+
 }
 
 void Render::UpdateRender() {
@@ -289,6 +290,8 @@ void Render::UpdateRender() {
 		m.render(shader);
 	}
 
+
+
 	// draw skybox as last
 	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 	skyboxShader.use();
@@ -302,6 +305,8 @@ void Render::UpdateRender() {
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS);
+
+
 	
 	// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 	// -------------------------------------------------------------------------------
