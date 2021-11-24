@@ -1,5 +1,6 @@
 #include "Render.h"
 
+
 using namespace std;
 
 Render::Render() {
@@ -18,6 +19,9 @@ float Render::deltaTime = 0.0f;
 float Render::lastFrame = 0.0f;
 
 bool mouseVisibility = false;
+
+unsigned int skyboxVAO, skyboxVBO;
+unsigned int cubemapTexture;
 
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -161,6 +165,7 @@ void Render::InitRenderer() {
 	// build and compile our shader zprogram
 	// ------------------------------------
 	shader = Shader("model.vert", "model.frag");
+	skyboxShader = Shader("skybox.vert", "skybox.frag");
 
 	//Load Models
 	LoadModels();
@@ -171,6 +176,74 @@ void Render::InitRenderer() {
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
+
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+
+	// skybox VAO
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	vector<std::string> faces
+	{
+		"Skybox_Right.png",
+		"Skybox_Left.png",
+		"Skybox_Top.png",
+		"Skybox_Bottom.png",
+		"Skybox_Front.png",
+		"Skybox_Back.png"
+	};
+	cubemapTexture = loadCubemap(faces);
+
+	skyboxShader.use();
+	skyboxShader.setInt("skybox", 0);
 }
 
 void Render::UpdateRender() {
@@ -211,10 +284,24 @@ void Render::UpdateRender() {
 	RenderLights();
 
 	//model render
-	cout << "Total rendered models: " << models.size() << endl;
+	/*cout << "Total rendered models: " << models.size() << endl;*/
 	for (Model m : models) {
 		m.render(shader);
 	}
+
+	// draw skybox as last
+	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+	skyboxShader.use();
+	view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
+	skyboxShader.setMat4("view", view);
+	skyboxShader.setMat4("projection", projection);
+	// skybox cube
+	glBindVertexArray(skyboxVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS);
 	
 	// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 	// -------------------------------------------------------------------------------
@@ -323,14 +410,46 @@ void Render::RenderLights() {
 	for (int i = 0; i < spotLights.size(); i++) {
 		spotLights[i].RenderLight(shader, to_string(1+i) + "");
 	}
-	cout << "Loaded spots" << endl;
+	/*cout << "Loaded spots" << endl;*/
 	for (int i = 0; i < pointLights.size(); i++)
 	{
 		pointLights[i].RenderLight(shader,to_string(i) );
 	}
-	cout << "Loaded points" << endl;
+	/*cout << "Loaded points" << endl;*/
 	// update flashlight
 	flashlight.SetPosition(camera.Position.x, camera.Position.y, camera.Position.z);
 	flashlight.SetDirection(camera.Front.x, camera.Front.y, camera.Front.z);
 	flashlight.RenderLight(shader, "0");
+}
+
+unsigned int Render::loadCubemap(vector<std::string> faces)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < faces.size(); i++)
+	{
+		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+			);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return textureID;
 }

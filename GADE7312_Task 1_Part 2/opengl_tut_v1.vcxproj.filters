@@ -141,6 +141,8 @@
     <None Include="multiple_lights.vert" />
     <None Include="model.vert" />
     <None Include="model.frag" />
+    <None Include="skybox.frag" />
+    <None Include="skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\wolfenstein.png">

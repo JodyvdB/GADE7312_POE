@@ -19,7 +19,7 @@ void Model::render(Shader shader)
 	shader.setFloat("material.shininess", 0.5f);
 	shader.setFloat("material.ambient", 0.8f);
 
-	std::cout << "Loading " + std::to_string(meshes.size()) + " meshes..." << std::endl;
+	/*std::cout << "Loading " + std::to_string(meshes.size()) + " meshes..." << std::endl;*/
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
 		meshes[i].render(shader);
@@ -79,7 +79,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 		meshes.push_back(processMesh(mesh, scene));
 	}
 
-	std::cout << "Post Load Mesh count:" + std::to_string(meshes.size())<< std::endl;
+	/*std::cout << "Post Load Mesh count:" + std::to_string(meshes.size())<< std::endl;*/
 
 	//process the children nodes
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -177,7 +177,7 @@ std::vector<Texture> Model::loadTextures(aiMaterial* mat, aiTextureType type)
 		//texture hasn't been loaded yet
 		if (!skip)
 		{
-			std::cout << "loading " << directory << std::endl;
+			/*std::cout << "loading " << directory << std::endl;*/
 			Texture tex(directory, str.C_Str(), type);
 			tex.load(false);
 			textures.push_back(tex);

@@ -19,7 +19,6 @@
 #include "shader.h"
 #include "Light.h"
 
-
 #include <iostream>
 #include <vector>
 
@@ -59,7 +58,7 @@ public:
 private: 
 	//shader stuff
 	Shader shader;
-
+	Shader skyboxShader;
 	SpotLight flashlight;
 
 
@@ -89,6 +88,9 @@ public:
 	void LoadModels();
 	void LoadModel(int pos);
 	void RenderLights();
+
+
+	unsigned int loadCubemap(vector<std::string> faces);
 };
 #endif
 
