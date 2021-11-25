@@ -13,7 +13,7 @@ int main()
 	
 	Render renderer;
 	
-	LevelManager::LoadLevel(&renderer, "Empty Scene");
+	LevelManager::LoadLevel(&renderer, "Wolfenstein Level");
 
 	renderer.InitRenderer();
 

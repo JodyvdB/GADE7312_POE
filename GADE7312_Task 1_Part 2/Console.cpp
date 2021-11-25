@@ -20,7 +20,7 @@ int triangleCount = 0;
 
 Console::Console(Render* render) {
 	renderer = render;
-	currentLevel = "Empty Scene";
+	currentLevel = "Wolfenstein Level";
 	
 }
 
